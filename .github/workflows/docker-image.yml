@@ -22,7 +22,14 @@ jobs:
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
       
-      - name: Build and run containers with Docker Compose
-        run: |
-          docker-compose up --build --abort-on-container-exit --remove-orphans
-        working-directory: ./docker-compose
+      - name: Start the app containers
+        run: docker-compose up -d
+        working-directory: ./
+
+      - name: Run the PHPUnit tests
+        run: docker-compose exec app php vendor/bin/phpunit
+        working-directory: ./
+
+      - name: Stop the app containers
+        run: docker-compose down
+        working-directory: ./
