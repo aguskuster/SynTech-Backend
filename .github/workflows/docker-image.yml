@@ -25,6 +25,9 @@ jobs:
       - name: Start the app containers
         run: docker-compose up -d
         working-directory: ./
+      - name: Install composer dependencies
+        run:  docker exec -it laravel_app composer install
+        working-directory: ./
 
       - name: Run the PHPUnit tests
         run: docker exec -i laravel_app php artisan test --filter=GradoControllerTest
