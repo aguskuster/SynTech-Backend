@@ -27,7 +27,7 @@ jobs:
         working-directory: ./
 
       - name: Run the PHPUnit tests
-        run: docker exec -ti laravel_app php artisan test --filter=GradoControllerTest
+        run: docker exec -i laravel_app php artisan test --filter=GradoControllerTest
         working-directory: ./
 
       - name: Stop the app containers
