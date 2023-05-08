@@ -2,33 +2,41 @@ name: Laravel CI
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
+    branches: [ main ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: test
+          MYSQL_USER: root
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
     steps:
-    - uses: actions/checkout@v2
-
+    - name: Checkout
+      uses: actions/checkout@v2
+      
     - name: Set up PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.0'
-        extensions: mbstring, pdo_mysql
-
-    - name: Copy .env file
-      run: cp .env.example .env
-
+        php-version: 8.0
+        extensions: mbstring, pdo, pdo_mysql, bcmath
+        
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress --no-interaction
-
-    - name: Create database
-      run: |
-        mysql -e 'create database if not exists test;'
-        php artisan migrate --env=testing
-
+      
+    - name: Set up environment
+      run: cp .env.example .env
+      
+    - name: Generate key
+      run: php artisan key:generate
+      
     - name: Run tests
       run: php artisan test --filter=CarreraControllerTest
