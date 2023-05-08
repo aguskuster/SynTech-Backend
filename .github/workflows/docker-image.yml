@@ -1,8 +1,10 @@
 name: Laravel CI
 
 on:
-  push:
-    branches: [ testing ]
+ push:
+    branches: [ "testing" ]
+ pull_request:
+    branches: [ "testing" ]
 
 jobs:
   test:
