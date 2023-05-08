@@ -42,4 +42,18 @@ jobs:
         php -r "unlink('composer-setup.php');"
     - name: Install Dependencies
       run: composer install
-
+    - name: Start services
+      run: docker-compose up -d
+      working-directory: .
+    - name: Wait for MySQL
+      run: docker-compose exec -T mysql mysqladmin --user=homestead --password=secret --host "127.0.0.1" --port=3306 --silent --wait=30 ping
+      working-directory: .
+    - name: Generate key
+      run: php artisan key:generate
+      working-directory: .
+    - name: Run tests
+      run: php artisan test --filter=CarreraControllerTest
+      working-directory: .
+    - name: Stop services
+      run: docker-compose down
+      working-directory: .
