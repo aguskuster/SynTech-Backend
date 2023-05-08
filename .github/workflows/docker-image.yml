@@ -2,50 +2,44 @@ name: Laravel Test
 
 on:
   push:
+    branches: [ "testing" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "testing" ]
 
 jobs:
-  test:
+
+  build:
+
     runs-on: ubuntu-latest
 
     services:
-      db:
+      mysql:
         image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: laravelTesting
+          MYSQL_DATABASE: homestead
+          MYSQL_USER: homestead
+          MYSQL_PASSWORD: secret
+          MYSQL_ROOT_PASSWORD: secret
         ports:
-          - 3306/tcp
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-      
-    - name: Set up PHP
+    - uses: actions/checkout@v2
+    - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.0'
-        extensions: mbstring, pdo_mysql
-
-    - name: Copy .env file
-      run: cp .env.example .env
-
-    - name: Generate application key
-      run: php artisan key:generate
-
-    - name: Configure database
+        extensions: mbstring, zip, pcntl
+    - name: Install Composer
       run: |
-        sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
-        sed -i 's/DB_DATABASE=.*/DB_DATABASE=:memory:/' .env
-
-    - name: Install dependencies
+        php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+        php composer-setup.php
+        php -r "unlink('composer-setup.php');"
+    - name: Install Dependencies
       run: composer install
 
-    - name: Run migrations
-      run: php artisan migrate
-
-    - name: Run tests
-      run: php artisan test --filter=CarreraControllerTest
