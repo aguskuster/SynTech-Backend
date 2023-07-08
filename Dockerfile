@@ -1,43 +1,22 @@
-# Base image
-FROM php:7.4-apache
+FROM centos:7
 
-# Set working directory
+RUN yum update -y && yum install epel-release -y && yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm -y && yum clean all -y && rm -rf /var/cache/yum
+
+RUN yum --enablerepo=remi-php73 -y install httpd php php-bcmath php56-php-fpm php-cli php-common php-gd php-intl php-ldap php-fpm  php-mbstring php-mysqlnd php-pear php-soap php-xml php-xmlrpc php-zip && yum clean all -y && rm -rf /var/cache/yum
+
+RUN echo -e "<VirtualHost *:80>\n DocumentRoot /var/www/html/public \n ServerName default \n <Directory /var/www/html/public> \n Options +Indexes +FollowSymLinks \n AllowOverride all \n  Require all granted \n RewriteEngine On \n </Directory> \n </VirtualHost>"  > /etc/httpd/conf.d/laravel.conf
+
+RUN yum install php-cli php-zip wget unzip -y && php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+
+
 WORKDIR /var/www/html
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip
-
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
-
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Enable Apache rewrite module
-RUN a2enmod rewrite
-
-# Copy repository files
+COPY package*.json ./
+COPY .env.example .env
 COPY . .
 
-# Install project dependencies
-ENV COMPOSER_ALLOW_SUPERUSER=1
-RUN composer install --no-interaction --optimize-autoloader --no-dev -vvv
 
-# Generate application key
-RUN php artisan key:generate
-
-# Set folder permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Expose port 80
-EXPOSE 80
-
-# Start Apache server
-CMD ["apache2-foreground"]
+CMD ["php-fpm", "-F"]
+EXPOSE 8000
+ 
+CMD composer install && php artisan key:generate && chown -R apache /var/www/html/bootstrap/cache && chown -R apache /var/www/html/storage && php artisan serve --host 0.0.0.0
