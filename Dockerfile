@@ -27,7 +27,7 @@ RUN a2enmod rewrite
 COPY . .
 
 # Install project dependencies
-RUN composer install --no-interaction --optimize-autoloader --no-dev -vvv
+RUN export COMPOSER_ALLOW_SUPERUSER=1 && composer install --no-interaction --optimize-autoloader --no-dev -vvv
 
 # Generate application key
 RUN php artisan key:generate
