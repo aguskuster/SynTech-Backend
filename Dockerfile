@@ -6,6 +6,8 @@ WORKDIR /var/www/html
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
+    git \
+    curl \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
@@ -16,31 +18,25 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 # Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Copy project files
+# Enable Apache rewrite module
+RUN a2enmod rewrite
+
+# Copy repository files
 COPY . .
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && a2enmod rewrite
-
-# Copy vhost.conf file
-COPY docker/apache/vhost.conf /etc/apache2/sites-available/000-default.conf
-
 # Install project dependencies
-RUN composer install --no-interaction --optimize-autoloader --no-scripts
+RUN composer install --no-interaction --optimize-autoloader --no-dev
 
 # Generate application key
 RUN php artisan key:generate
 
-# Build assets
-RUN php artisan mix --env=production
+# Set folder permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Expose port
+# Expose port 80
 EXPOSE 80
 
 # Start Apache server
 CMD ["apache2-foreground"]
-
-
