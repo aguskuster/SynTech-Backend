@@ -15,7 +15,7 @@ jobs:
       
     - name: Set up Kubernetes CLI
       run: |
-        echo ${{ secrets.KUBECONFIG }} | base64 --decode > kubeconfig.yaml
+        echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > kubeconfig.yaml
       
     - name: Verify Kubernetes connectivity
       run: |
