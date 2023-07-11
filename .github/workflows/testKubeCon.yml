@@ -10,14 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.0
+      - name: Run kubectl create deployment command
+        uses: appleboy/ssh-action@master
         with:
-          ssh-private-key: ${{ secrets.RSA_PUB }}
-
-      - name: Connect via SSH and run command
-        run: |
-          ssh -p 223 root@190.64.41.140 kubectl create deployment --image akuster/laravel-backoffice-actions laravel-app-actions
+        host: ${{ secrets.SERVER_IP }}
+        username: root
+        password: ${{ secrets.SERVER_PASSWORD }}
+        port: 223
+        script: |
+          kubectl create deployment --image akuster/laravel-backoffice-actions laravel-app-actions
