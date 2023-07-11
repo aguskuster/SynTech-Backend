@@ -27,15 +27,16 @@ jobs:
         with:
           push: true
           tags: akuster/laravel-backoffice-actions
-      - name: Deploy to Kubernetes
+      - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Create kubeconfig
+        
+      - name: Set up Kubernetes CLI
+        uses: azure/k8s-set-context@v1
+        with:
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+        
+      - name: Verify Kubernetes connectivity
         run: |
-          mkdir ${HOME}/.kube
-          echo ${{ secrets.KUBE_CONFIG }} | base64 --decode > ${HOME}/.kube/config
-          cat ${HOME}/.kube/config
-      - name: Set kube context
-        run: kubectl config use-context kubernetes-admin@kubernetes
-      - name: Deploy to K8s
-        run: kubectl create deployment --image akuster/laravel-backoffice-actions laravel-action
+          kubectl cluster-info
+          kubectl get pods --all-namespaces
   
