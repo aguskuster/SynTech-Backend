@@ -34,6 +34,8 @@ jobs:
           mkdir ${HOME}/.kube
           echo ${{ secrets.KUBE_CONFIG }} | base64 --decode > ${HOME}/.kube/config
           cat ${HOME}/.kube/config
+      - name: Set kube context
+        run: kubectl config use-context kubernetes-admin@kubernetes
       - name: Deploy to K8s
         run: kubectl create deployment --image akuster/laravel-backoffice-actions laravel-action
   
