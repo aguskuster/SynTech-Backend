@@ -14,9 +14,8 @@ jobs:
       uses: actions/checkout@v2
       
     - name: Set up Kubernetes CLI
-      uses: azure/k8s-set-context@v1
-      with:
-        kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
+      run: |
+        echo ${{ secrets.KUBECONFIG }} | base64 --decode > kubeconfig.yaml
       
     - name: Verify Kubernetes connectivity
       run: |
