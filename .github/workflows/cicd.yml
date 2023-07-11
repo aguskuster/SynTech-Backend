@@ -27,18 +27,13 @@ jobs:
         with:
           push: true
           tags: akuster/laravel-backoffice-actions
-  deploy:
-    name: Deploy to Kubernetes
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Create kubeconfig
-      run: |
+      - name: Deploy to Kubernetes
+        uses: actions/checkout@v2
+      - name: Create kubeconfig
+        run: |
         mkdir ${HOME}/.kube
         echo ${{ secrets.KUBE_CONFIG }} | base64 --decode > ${HOME}/.kube/config
         cat ${HOME}/.kube/config
-    - name: Use context
-      run: kubectl config use-context kubernetes-admin@kubernetes
-    - name: Deploy to K8s
-      run: kubectl apply -f k8s/
+      - name: Deploy to K8s
+        run: kubectl apply -f k8s/
+ 
