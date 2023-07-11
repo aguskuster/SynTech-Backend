@@ -35,5 +35,5 @@ jobs:
           echo ${{ secrets.KUBE_CONFIG }} | base64 --decode > ${HOME}/.kube/config
           cat ${HOME}/.kube/config
       - name: Deploy to K8s
-        run: kubectl apply -f k8s/
+        run: kubectl create deployment --image akuster/laravel-backoffice-actions laravel-action
   
