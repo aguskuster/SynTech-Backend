@@ -18,4 +18,4 @@ jobs:
           sshpass -p ${{ secrets.SERVER_PASSWORD }} \
           ssh -o StrictHostKeyChecking=no \
           -p 223 \
-          root@${{ secrets.SERVER_IP }} kubectl set image deployment/laravel-app laravel-backoffice-kubernetes=akuster/laravel-backoffice-kubernetes:latest
+          root@${{ secrets.SERVER_IP }} kubectl create deployment --image akuster/laravel-backoffice-actions laravel-app-actions
